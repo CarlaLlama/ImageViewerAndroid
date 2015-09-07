@@ -4,34 +4,72 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
 public class ImageViewActivity extends AppCompatActivity {
+    int[] images = new int[9];
+    ImageView displayImg;
+    ImageButton left;
+    ImageButton right;
+    Button slideshow;
+    int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_view);
+        displayImg = (ImageView)findViewById(R.id.displayImg);
+        left = (ImageButton)findViewById(R.id.imageButton);
+        right = (ImageButton)findViewById(R.id.imageButton2);
+        slideshow = (Button)findViewById(R.id.button2);
+        imageLoader();
+        displayImg.setImageResource(images[0]);
+
+        left.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                showPreviousImage();
+                displayImg.setImageResource(images[count]);
+            }
+        });
+
+        right.setOnClickListener(new View.OnClickListener() {
+            public void onClick (View view) {
+                showNextImage();
+                displayImg.setImageResource(images[count]);
+            }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_image_view, menu);
-        return true;
+    protected void imageLoader(){
+        images[0] = R.drawable.upper;
+        images[1] = R.drawable.ebe;
+        images[2] = R.drawable.commerce;
+        images[3] = R.drawable.science;
+        images[4] = R.drawable.humanities;
+        images[5] = R.drawable.change;
+        images[6] = R.drawable.tugwell;
+        images[7] = R.drawable.lecture;
+        images[8] = R.drawable.graduate;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    protected void showNextImage(){
+        if(count<8){
+            count++;
+        }else{
+            count = 0;
         }
 
-        return super.onOptionsItemSelected(item);
+
+    }
+
+    protected void showPreviousImage(){
+        if(count>0){
+            count--;
+        }else{
+            count = 8;
+        }
     }
 }
