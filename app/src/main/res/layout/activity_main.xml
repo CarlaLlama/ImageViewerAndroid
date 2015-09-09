@@ -15,7 +15,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Have a look inside!"
+        android:text="HAVE A LOOK INSIDE!"
         android:textColor="@android:color/white"
         android:id="@+id/enter"
         android:layout_alignParentBottom="true"
@@ -23,6 +23,6 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:backgroundTint="#010101" />
+        android:background="@android:color/black" />
 
 </RelativeLayout>
