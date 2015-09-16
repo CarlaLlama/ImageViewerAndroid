@@ -128,7 +128,7 @@ public class ImageViewActivity extends FragmentActivity {
     protected boolean loadImagesFromSD(String path){
         File imageFile;
         for (int i = 0; i < 8; i++){
-            imageFile = new File(path);
+            imageFile = new File(path+"/"+imageNames[i]);
             if(!imageFile.exists()){
                 Toast.makeText(this,"Cannot find "+imageNames[i] +" image on SD card! Using default images from drawable",Toast.LENGTH_LONG).show();
                 return false;
