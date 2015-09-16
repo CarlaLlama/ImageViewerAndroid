@@ -9,17 +9,18 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 Button enter;
     @Override
+    //onCreate activity for when the app starts
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try{
-           getSupportActionBar().hide();
+           getSupportActionBar().setTitle("Welcome Image");
         }catch(NullPointerException e){
             e.printStackTrace();
         }
-
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);             //Fill window with current class
 
         enter = (Button)findViewById(R.id.enter);
+        //On click listener for Enter button
         enter.setOnClickListener(new View.OnClickListener() {
             public void onClick (View view) {
                 enterClick();
@@ -28,8 +29,9 @@ Button enter;
     }
 
     public void enterClick(){
-        Intent inte = new Intent(MainActivity.this,ImageViewActivity.class);
-        startActivity(inte);
+        //Create new intent to initiate next window
+        Intent intent = new Intent(MainActivity.this,ImageViewActivity.class);
+        startActivity(intent);
         finish();
     }
 }

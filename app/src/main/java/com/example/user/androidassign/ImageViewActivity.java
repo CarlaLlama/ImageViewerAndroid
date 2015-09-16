@@ -2,7 +2,6 @@ package com.example.user.androidassign;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -16,47 +15,70 @@ import android.widget.Toast;
 import java.io.File;
 
 public class ImageViewActivity extends FragmentActivity {
-    int[] images = new int[9];
+    int[] images = new int[9];              //Integer array to hold the ids for the pictures in drawable
     ImageView displayImg;
     ImageButton left;
     ImageButton right;
     Button slideshow;
-    int count = 0;
-    String filePath = "/DCIM/AssignmentApp/";
+    int count;                          //Counter to iterate through images in order
+    String filePath = "/DCIM";           //Path of images if pre-loaded onto SD Card
+    int savedCount;
 
-    @Override
+    @Override               //OnCreate activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        count = 0;
         setContentView(R.layout.activity_image_view);
-        imageLoader();
+        imageLoader();                       //Initiate load sequence
         displayImg = (ImageView)findViewById(R.id.displayImg);
         left = (ImageButton)findViewById(R.id.imageButton);
         right = (ImageButton)findViewById(R.id.imageButton2);
         slideshow = (Button)findViewById(R.id.button2);
-
-        displayImg.setImageResource(images[0]);
-
+        //Display first image
+        if(allOnSD){
+            loadSpecificImage(0);
+        }else {
+            displayImg.setImageResource(images[0]);
+        }
+       // displayImg.setImageResource(images[0]);
+        //On Click Listener for previous image button
         left.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 showPreviousImage();
             }
         });
-
+        //On Click Listener for next image button
         right.setOnClickListener(new View.OnClickListener() {
             public void onClick (View view) {
                 showNextImage();
             }
         });
-
-        slideshow.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View view){
+        //On Click Listener for slideshow button
+        slideshow.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
                 slideshowImages();
             }
         });
     }
 
 //on paused method
+    @Override
+    public void onPause(){
+        super.onPause();
+        savedCount = count;
+    }
+//on resume method to resume from current image
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(allOnSD){
+            loadSpecificImage(savedCount);               //If image is on sd card, use that
+        }else {
+            displayImg.setImageResource(images[savedCount]);         //Otherwise use default image from drawable
+        }
+    }
+
+    //Load saved instance state with counter of current image
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         // Save UI state changes to the savedInstanceState.
@@ -66,53 +88,64 @@ public class ImageViewActivity extends FragmentActivity {
         savedInstanceState.putString("MyString", "Welcome back");
     }
 
-    String[] imageNames = {"upper.png","ebe.jpg", "commerce.jpg", "science.jpg", "humanities.jpg", "change.jpg", "tugwell.jpg", "lecture.jpg", "graduate.jpg"};
+    //Array of image names expected to find in SD card
+    String[] imageNames = {"upper.jpg","ebe.jpg", "commerce.jpg", "science.jpg", "humanities.jpg", "change.jpg", "tugwell.jpg", "lecture.jpg", "graduate.jpg"};
     boolean allOnSD = true;
 
+    //Finds if images exist in preset directory on SD card
     protected void imageLoader(){
         if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
             System.out.println("SD card found, checking for preloaded images on SD");
             String externalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+
             String targetPath = externalStoragePath + filePath;
-            loadImagesFromSD(targetPath);
+            System.out.println("PATH: "+targetPath);
+            allOnSD = loadImagesFromSD(targetPath);
+            if(!allOnSD){
+                loadImagesFromDrawable();
+
+            }
         }else {
             Toast.makeText(this, "No SD card found! Using images in drawable", Toast.LENGTH_LONG).show();
             System.out.println("Images not found on SD card, using images in drawable");
             allOnSD = false;
-            images[0] = R.drawable.upper;
-            images[1] = R.drawable.ebe;
-            images[2] = R.drawable.commerce;
-            images[3] = R.drawable.science;
-            images[4] = R.drawable.humanities;
-            images[5] = R.drawable.change;
-            images[6] = R.drawable.tugwell;
-            images[7] = R.drawable.lecture;
-            images[8] = R.drawable.graduate;
+            loadImagesFromDrawable();
         }
     }
-
-    protected void loadImagesFromSD(String path){
+//Called if images are not on SD card
+    protected void loadImagesFromDrawable(){
+        images[0] = R.drawable.upper;
+        images[1] = R.drawable.ebe;
+        images[2] = R.drawable.commerce;
+        images[3] = R.drawable.science;
+        images[4] = R.drawable.humanities;
+        images[5] = R.drawable.change;
+        images[6] = R.drawable.tugwell;
+        images[7] = R.drawable.lecture;
+        images[8] = R.drawable.graduate;
+    }
+//Check that all images exist on the SD card, return false if they do not
+    protected boolean loadImagesFromSD(String path){
         File imageFile;
-        for (int i = 0; i < 9; i++){
-            imageFile = new File(path+"/"+imageNames[i]);
+        for (int i = 0; i < 8; i++){
+            imageFile = new File(path);
             if(!imageFile.exists()){
-                Toast.makeText(this,"Cannot find image! Using default images from drawable",Toast.LENGTH_LONG).show();
-                allOnSD = false;
-                break;
+                Toast.makeText(this,"Cannot find "+imageNames[i] +" image on SD card! Using default images from drawable",Toast.LENGTH_LONG).show();
+                return false;
             }
         }
         Toast.makeText(this,"Using SD card images",Toast.LENGTH_LONG).show();
+        return true;
     }
 
-    //TEST!!!
+//Load current image from SD card
     protected void loadSpecificImage(int id){
         String externalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
         String targetPath = externalStoragePath + filePath;
         File imageFile;
-        imageFile = new File(targetPath+imageNames[id]);
-        //Already checked that image exists
+        imageFile = new File(targetPath+"/"+imageNames[id]);
+        //Already checked that this images is on SD card
         Bitmap d = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-        Drawable.createFromPath(imageFile.getAbsolutePath());
         displayImg.setImageBitmap(d);
     }
 
@@ -123,9 +156,9 @@ public class ImageViewActivity extends FragmentActivity {
             count = 0;
         }
         if(allOnSD){
-            loadSpecificImage(count);
+            loadSpecificImage(count);               //If image is on sd card, use that
         }else {
-            displayImg.setImageResource(images[count]);
+            displayImg.setImageResource(images[count]);         //Otherwise use default image from drawable
         }
     }
 
@@ -143,7 +176,7 @@ public class ImageViewActivity extends FragmentActivity {
     }
 
     private Handler handler = new Handler();
-
+//enter slideshow
     protected void slideshowImages(){
         runnable.run();
 
@@ -158,7 +191,7 @@ public class ImageViewActivity extends FragmentActivity {
             }
         });
     }
-
+//Set slideshow to autochange every 2 seconds
     private Runnable runnable = new Runnable(){
         public void run(){
             if(count<8){
@@ -174,7 +207,7 @@ public class ImageViewActivity extends FragmentActivity {
             }
         }
     };
-
+//Once slideshow is exited, reset buttons
     protected void exitSlideshow(){
         slideshow.setText("ENTER SLIDESHOW");
         left.setVisibility(View.VISIBLE);
